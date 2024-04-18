@@ -1,15 +1,12 @@
 import {
-    APIGatewayProxyEventV2,
     APIGatewayProxyStructuredResultV2,
+    APIGatewaySimpleAuthorizerWithContextResult,
 } from 'aws-lambda';
 
 import { hasProperty } from '../helpers/property_assertion';
 import { LambdaHandlerT } from '../types/lambda_handler';
 
-export const executeLambda = async (
-    event: APIGatewayProxyEventV2,
-    lambdaHandler: LambdaHandlerT,
-): Promise<APIGatewayProxyStructuredResultV2> => {
+export const executeLambda = async (event: any, lambdaHandler: LambdaHandlerT): Promise<APIGatewayProxyStructuredResultV2> => {
     const lambdaResponse = await lambdaHandler(event);
 
     let baseResponse: APIGatewayProxyStructuredResultV2 = {
@@ -33,4 +30,8 @@ export const executeLambda = async (
     }
 
     return baseResponse;
+}
+
+export const executeSimpleLambdaAuthorizer = async (event: any, lambdaHandler: LambdaHandlerT): Promise<APIGatewaySimpleAuthorizerWithContextResult<unknown>> => {
+    return executeLambda(event, lambdaHandler) as unknown as APIGatewaySimpleAuthorizerWithContextResult<unknown>;
 }

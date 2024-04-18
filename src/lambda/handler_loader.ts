@@ -1,23 +1,23 @@
 import { join } from 'path';
-import { Request } from 'express';
 
 import { LambdaHandlerT } from '../types/lambda_handler';
 
-export const loadHandler = async (basePath: string, req: Request): Promise<LambdaHandlerT | null> => {
-    const [path] = req.originalUrl.split('?');
-
+export const loadHandler = async (basePath: string, lambdaIndex: string, lambdaHandler?: string): Promise<LambdaHandlerT | null> => {
     try {
-        if (/^(\.*\/)*$/.test(path)) {
-            throw new Error();
+        const sanitizedPath = join(basePath, lambdaIndex);
+
+        if (lambdaHandler) {
+            return new Promise((resolve, reject) => {
+                return resolve(require(sanitizedPath)[lambdaHandler]);
+            });
         }
 
-        const sanitizedPath = join(basePath, path, 'index.js');
-
-        const { handler } = await require(sanitizedPath);
-    
-        return handler as LambdaHandlerT;
-    } catch {
-        console.log(`Module "${path}" not found, ignoring...`);
+        return new Promise((resolve, reject) => {
+            return resolve(require(sanitizedPath).default);
+        });
+    } catch (error) {
+        console.error('Lombda: Error loading handler');
+        console.error(error);
         return null;
     }
 }

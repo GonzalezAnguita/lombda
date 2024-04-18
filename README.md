@@ -1,34 +1,52 @@
 # Lombda
 This is a POC that lets you simulate an api gateway lambda proxy integration using an alternative server framework. For the moment only [Express.js](https://expressjs.com) is supported.
 
-The library transforms the incoming request object to the payload that api gateway sends to the lambda when configured as Lambda Proxy Integration, more details can be found [here](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html#http-api-develop-integrations-lambda.v2)
+The library transforms the incoming request object to the payload that api gateway sends to the lambda when configured as Lambda Proxy Integration, more details can be found [here](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html#http-api-develop-integrations-lambda.v2). It also supports lambda authorizer.
 
-### Example
-There is an `example` project that you can run to get started. The source index you define which server you want to use to accept incoming requests
+### Setup
+Lombda requires that you define the routes that your lambdas will be mapped to. To start you must install lombda package.
+
+```bash
+    npm i lombda
+```
+
+If you have environment variables
+```bash
+    npm i dotenv
+```
+and create an `.env` file with your variables
 
 ```javascript
-// src/index.ts
+// lombda.js
 
-import dotenv from 'dotenv';
-import Lombda from 'lombda';
+const dotenv = require('dotenv');
+const Lombda = require('lombda').default;
 
 dotenv.config();
 
-Lombda.express(__dirname);
+Lombda.express([
+    {
+        lambdaIndex: 'path/to/public/lambda/dist/index.js',
+        lambdaHandler: 'handler',
+        routeKey: 'POST /public-lambda',
+    },
+    {
+        lambdaIndex: 'path/to/authorized/lambda/index.js',
+        lambdaHandler: 'handler',
+        routeKey: 'GET /authorized-lambda',
+        authorizer: {
+            lambdaIndex: 'path/to/authorizer/dist/index.js',
+            lambdaHandler: 'handler',
+        },
+    },
+], {
+    basePath: __dirname,
+    port: 3002,
+});
 ```
 
-Any other directory that you create under src will create an endpoint that once called it will trigger your lambda. The below lambda will be available under `localhost/my_lambda`
+To run it just execute
 
-```typescript
-// src/my_lambda/index.ts
-
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-
-export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
-    return {
-        statusCode: 200,
-        body: JSON.stringify(event),
-    };
-};
-
+```bash
+    node lombda.js
 ```
