@@ -37,15 +37,23 @@ export const adapter = (basePath: string, routes: LambdaRouteT[]) => {
                 return;
             }
             
-            const response = await executeSimpleLambdaAuthorizer(authorizerEvent, authorizer);
-            if (response.isAuthorized === false) {
-                res.status(401);
-                res.send(`Unauthorized`);
+            const response = await executeLambda(authorizerEvent, authorizer);
+            if (typeof response.body !== 'string') {
+                res.status(500);
+                res.send('Lombda: Internal server error authorizer response body is not a string');
     
                 return;
             }
 
-            event = parseAuthorizerEventWithContext(proxyEvent, response.context);
+            const body = JSON.parse(response.body);
+            if (!body.isAuthorized) {
+                res.status(401);
+                res.send('Unauthorized');
+    
+                return;
+            }
+
+            event = parseAuthorizerEventWithContext(proxyEvent, body.context);
         }
 
         const handler = await loadHandler(basePath, route.lambdaIndex, route.lambdaHandler);
