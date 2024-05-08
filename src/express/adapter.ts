@@ -4,7 +4,8 @@ import { LambdaRouteT } from '../types/lambda_route';
 import { parseEvent, parseAuthorizerEvent, parseAuthorizerEventWithContext } from './helpers/parse_event';
 import { loadHandler } from '../lambda/handler_loader';
 import { findRoute } from '../lambda/route_finder';
-import { executeLambda, executeSimpleLambdaAuthorizer } from '../lambda/execute_lambda';
+import { executeLambda } from '../lambda/execute_lambda';
+import { populateParams } from '../lambda/params_populator';
 
 export const adapter = (basePath: string, routes: LambdaRouteT[]) => {
     return async (req: Request, res: Response) => {
@@ -16,13 +17,9 @@ export const adapter = (basePath: string, routes: LambdaRouteT[]) => {
             return;
         }
 
-        const proxyEvent = parseEvent(req);
-        if (proxyEvent.routeKey !== route.routeKey) {
-            res.status(500);
-            res.send(`Internal server error routeKey mismatch "${proxyEvent.routeKey}" !== "${route.routeKey}"`);
+        populateParams(route, req);
 
-            return;
-        }
+        const proxyEvent = parseEvent(req);
 
         let event: any = proxyEvent;
 

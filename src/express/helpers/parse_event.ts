@@ -29,6 +29,7 @@ export const parseEvent = (req: Request): APIGatewayProxyEventV2 => {
         routeKey: `${method} ${baseUrl}`,
         rawPath: baseUrl,
         rawQueryString: queryParams,
+        pathParameters: req.params,
         headers: parseHeaders(req),
         queryStringParameters: parseQueryParams(req),
         cookies: req.cookies,
