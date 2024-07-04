@@ -19,7 +19,7 @@ export const adapter = (basePath: string, routes: LambdaRouteT[]) => {
 
         populateParams(route, req);
 
-        const proxyEvent = parseEvent(req);
+        const proxyEvent = parseEvent(route, req);
 
         let event: any = proxyEvent;
 

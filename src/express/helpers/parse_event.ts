@@ -4,6 +4,7 @@ import {
     APIGatewayProxyEventV2WithLambdaAuthorizer,
 } from 'aws-lambda';
 import { Request } from 'express';
+import { LambdaRouteT } from '../../types/lambda_route';
 
 import { parseHeaders } from './parse_headers';
 import { parseQueryParams } from './parse_query';
@@ -15,18 +16,20 @@ import { parseQueryParams } from './parse_query';
  * @param req
  * @returns 
  */
-export const parseEvent = (req: Request): APIGatewayProxyEventV2 => {
+export const parseEvent = (route: LambdaRouteT, req: Request): APIGatewayProxyEventV2 => {
     const [baseUrl, queryParams] = req.originalUrl.split('?');
-    const method = req.method;
 
     let body = undefined;
     if (Object.keys(req.body).length) {
         body = req.body;
     }
 
+    // Express uses path parameters as :paramName but API Gateway uses {paramName}
+    const routeKeyWithParamsParts = route.routeKey.replace(/\/:([^\/]+)(?:|$)/g, '/{$1}');
+
     return {
         version: '2.0',
-        routeKey: `${method} ${baseUrl}`,
+        routeKey: routeKeyWithParamsParts,
         rawPath: baseUrl,
         rawQueryString: queryParams,
         pathParameters: req.params,
