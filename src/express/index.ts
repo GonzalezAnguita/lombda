@@ -18,25 +18,31 @@ export const ExpressLombda = (
         cors?: CorsHeadersT,
     },
 ) => {
+    const { basePath, port, cors } = config;
     const app = express();
 
-    const router = adapter(config.basePath, routes);
+    const router = adapter(basePath, routes);
 
     app.use(bodyParser.text({ type: '*/*' }));
 
-    app.use('*', router);
-
-    app.use((_, res, next) => {
-        if (config.cors) {
-            Object.entries(config.cors).forEach(([key, value]) => {
+    if (cors) {
+        app.use((_, res, next) => {
+            Object.entries(cors).forEach(([key, value]) => {
                 res.append(key, value);
             });
-        }
 
-        next();
-    });
+            next();
+        });
 
-    app.listen(config.port, () => {
-        console.log(`[server]: Lombda is running at http://localhost:${config.port}`);
+        app.options('*', (_, res) => {
+            res.status(200);
+            res.send();
+        });
+    }
+
+    app.use('*', router);
+
+    app.listen(port, () => {
+        console.log(`[server]: Lombda is running at http://localhost:${port}`);
     });
 }

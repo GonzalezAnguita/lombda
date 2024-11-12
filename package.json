@@ -2,7 +2,7 @@
   "name": "lombda",
   "author": "José Tomás González",
   "license": "MIT",
-  "version": "2.0.5",
+  "version": "2.0.7",
   "description": "Execute lambdas using express as api gateway",
   "repository": "https://github.com/GonzalezAnguita/lombda",
   "main": "./dist/index.js",

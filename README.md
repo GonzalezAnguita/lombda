@@ -45,6 +45,22 @@ Lombda.express([
 });
 ```
 
+### CORS
+
+You can add to your config
+
+```javascript
+{
+    basePath: __dirname,
+    ...,
+    cors: {
+        'Access-Control-Allow-Origin': string,
+        'Access-Control-Allow-Headers': string,
+        'Access-Control-Allow-Methods': string,
+    }
+}
+```
+
 To run it just execute
 
 ```bash
