@@ -5,9 +5,19 @@ export const findRoute = (routes: LambdaRouteT[], req: Request): LambdaRouteT | 
     const [requestPath] = req.originalUrl.split('?');
     const requestMethod = req.method;
 
-    const route = routes.find(route => {
+    const exactRoute = routes.find(route => {
+        const [routeMethod, routePath] = route.routeKey.split(' ');
+
+        return routeMethod === requestMethod && routePath === requestPath;
+    });
+
+    if (exactRoute !== undefined) return exactRoute;
+
+    const partialRoute = routes.find(route => {
         const [routeMethod, routePath] = route.routeKey.split(' ');
         if (routeMethod !== requestMethod) return false;
+
+        if (routePath === requestPath) return true;
 
         const routePathParts = routePath.split('/');
         const requestPathParts = requestPath.split('/');
@@ -22,7 +32,8 @@ export const findRoute = (routes: LambdaRouteT[], req: Request): LambdaRouteT | 
 
         return isMatch;
     });
-    if (route === undefined) return null;
 
-    return route;
+    if (partialRoute === undefined) return null;
+
+    return partialRoute;
 }
