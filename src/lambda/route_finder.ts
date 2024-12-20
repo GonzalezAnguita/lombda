@@ -22,6 +22,8 @@ export const findRoute = (routes: LambdaRouteT[], req: Request): LambdaRouteT | 
         const routePathParts = routePath.split('/');
         const requestPathParts = requestPath.split('/');
 
+        if (routePathParts.length !== requestPathParts.length) return false;
+
         const isMatch = routePathParts.every((routePart, index) => {
             if (requestPathParts.length <= index) return false;
 
