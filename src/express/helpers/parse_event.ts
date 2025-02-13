@@ -59,19 +59,16 @@ export const parseEvent = (route: LambdaRouteT, req: Request): APIGatewayProxyEv
     };
 }
 
-export const parseAuthorizerEvent = (req: Request): APIGatewayRequestAuthorizerEventV2 => {
+export const parseAuthorizerEvent = (route: LambdaRouteT, req: Request): APIGatewayRequestAuthorizerEventV2 => {
     const [baseUrl, queryParams] = req.originalUrl.split('?');
-    const method = req.method;
-
-    let body = undefined;
-    if (Object.keys(req.body).length) {
-        body = req.body;
-    }
 
     const identitySource: string[] = [];
     if (req.headers['authorization']) {
         identitySource.push(req.headers['authorization']);
     }
+
+    // Express uses path parameters as :paramName but API Gateway uses {paramName}
+    const routeKeyWithParamsParts = route.routeKey.replace(/\/:([^\/]+)(?:|$)/g, '/{$1}');
 
     return {
         type: 'REQUEST',
@@ -79,9 +76,10 @@ export const parseAuthorizerEvent = (req: Request): APIGatewayRequestAuthorizerE
         identitySource,
 
         version: '2.0',
-        routeKey: `${method} ${baseUrl}`,
+        routeKey: routeKeyWithParamsParts,
         rawPath: baseUrl,
         rawQueryString: queryParams,
+        pathParameters: req.params,
         headers: parseHeaders(req),
         queryStringParameters: parseQueryParams(req),
         cookies: req.cookies,

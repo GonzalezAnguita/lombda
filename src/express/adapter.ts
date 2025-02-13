@@ -24,7 +24,7 @@ export const adapter = (basePath: string, routes: LambdaRouteT[]) => {
         let event: any = proxyEvent;
 
         if (route.authorizer?.lambdaIndex && route.authorizer?.lambdaHandler) {
-            const authorizerEvent = parseAuthorizerEvent(req);
+            const authorizerEvent = parseAuthorizerEvent(route, req);
 
             const authorizer = await loadHandler(basePath, route.authorizer.lambdaIndex, route.authorizer.lambdaHandler);
             if (authorizer === null) {
