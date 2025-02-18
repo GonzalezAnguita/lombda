@@ -67,6 +67,10 @@ export const adapter = (basePath: string, routes: LambdaRouteT[]) => {
             res.setHeader(key, String(value));
         });
 
+        if (response.cookies) {
+            res.setHeader('Set-Cookie', response.cookies);
+        }
+
         res.status(response.statusCode ?? 200);
         res.send(response.body);
     }
