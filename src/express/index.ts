@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Express } from 'express';
 import bodyParser from 'body-parser';
 
 import { adapter } from './adapter';
@@ -17,7 +17,7 @@ export const ExpressLombda = (
         port: number,
         cors?: CorsHeadersT,
     },
-) => {
+): Express => {
     const { basePath, port, cors } = config;
     const app = express();
 
@@ -45,4 +45,6 @@ export const ExpressLombda = (
     app.listen(port, () => {
         console.log(`[server]: Lombda is running at http://localhost:${port}`);
     });
+
+    return app;
 }
